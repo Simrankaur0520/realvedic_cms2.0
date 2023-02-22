@@ -165,7 +165,8 @@ def adminProductEditView(request,format=None):
    
 
 #-----------------------------------------------------------    
-    res['images']=eval(single_prod_obj['image'])
+    res['images']=(single_prod_obj['image']).split(',')
+    print((single_prod_obj['image']))
     res['name']=single_prod_obj['title']
     res['id']= single_prod_obj['id']
     res['status']=single_prod_obj['Status']

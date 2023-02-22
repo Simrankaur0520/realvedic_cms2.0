@@ -771,7 +771,7 @@ def handle_payment_success(request):
         order = PaymentOrder.objects.filter(order_payment_id=ord_id).delete()
         return Response({'error': 'Something went wrong'})
     order.isPaid = True
-    order.order_status = 'placed'
+    order.order_status = 'Placed'
     order.save()
     user_cart.objects.filter(user_id = order.user_id).delete()
     res_data = {

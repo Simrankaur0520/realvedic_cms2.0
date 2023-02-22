@@ -3,6 +3,7 @@ import realvedic_app.views as views
 import realvedic_app.test_code as t_views
 import realvedic_app.admin_pages.adminOrder as adO
 import realvedic_app.admin_pages.adminProductInfo as ad
+import realvedic_app.admin_pages.userAdmin as UserA
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -37,9 +38,14 @@ urlpatterns = [
                 path('single_product_view2',t_views.single_product_view2,name='single_product_view2'),
                 path('recently_viewed_oc',t_views.recently_viewed_oc,name='recently_viewed_oc'),     
                 #admin pages
+                path('admin_order_edit',adO.admin_order_edit,name='admin_order_edit'), 
                 path('admin_order_view',adO.admin_order_view,name='admin_order_view'),  
+                path('admin_order_edit_view',adO.admin_order_edit_view,name='admin_order_edit_view'),
                 path('adminProductView',ad.adminProductView,name='adminProductView'),
                 path('adminProductEditView',ad.adminProductEditView,name='adminProductEditView'),
                 path('siblingProductList',ad.siblingProductList,name='siblingProductList'),
                 path('admin_product_edit_view',ad.admin_product_edit_view,name='admin_product_edit_view'),
+                path('admin_user_view',UserA.admin_user_view,name='admin_user_view')
+                
+
               ]+static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)

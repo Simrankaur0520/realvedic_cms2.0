@@ -105,6 +105,8 @@ class user_data(models.Model):
     phone_no = models.TextField()
     password = models.TextField()
     token = models.TextField()
+    user_type=models.TextField(default='User')
+    created_at=models.DateTimeField(auto_now=True,blank=True)
 
 class user_address(models.Model):
     user_id = models.TextField()
@@ -138,6 +140,13 @@ class doctor_info(models.Model):
       speciality=models.TextField(blank=True)
       available=models.TextField(blank=True)
       image=models.TextField()
+    
+class admin_data(models.Model):
+    name=models.TextField(blank=True) 
+    phone_no=models.TextField(blank=True) 
+    email_id=models.TextField(blank=True) 
+    password=models.TextField(blank=True) 
+    token=models.TextField(blank=True) 
 
 
 
