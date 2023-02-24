@@ -41,10 +41,19 @@ urlpatterns = [
                 path('admin_order_edit',adO.admin_order_edit,name='admin_order_edit'), 
                 path('admin_order_view',adO.admin_order_view,name='admin_order_view'),  
                 path('admin_order_edit_view',adO.admin_order_edit_view,name='admin_order_edit_view'),
+                path('admin_order_create',adO.admin_order_create,name='admin_order_create'),
+                path('adminOrderDelete',adO.adminOrderDelete,name='adminOrderDelete'),
+                #product
                 path('adminProductView',ad.adminProductView,name='adminProductView'),
                 path('adminProductEditView',ad.adminProductEditView,name='adminProductEditView'),
                 path('siblingProductList',ad.siblingProductList,name='siblingProductList'),
                 path('admin_product_edit_view',ad.admin_product_edit_view,name='admin_product_edit_view'),
+                path('adminAddNewProduct',ad.adminAddNewProduct,name='adminAddNewProduct'),
+                path('newImageUpload',ad.newImageUpload,name='newImageUpload'),
+                path('adminProductDelete',ad.adminProductDelete,name='adminProductDelete'),
+               
+
+
                 path('admin_user_view',UserA.admin_user_view,name='admin_user_view')
                 
 

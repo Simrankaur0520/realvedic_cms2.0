@@ -196,12 +196,7 @@ def admin_order_edit_view(request,format=None):
     res['contact_info']=contact_info
     res['status_list']=status_list
     datee=(order_obj['order_date'])
-    print("datetime string : {}".format(datee))
-    
-    # call datetime.strptime to convert
-    # it into datetime datatype
-    #datetime_obj = datetime.strptime(datee,"%d%b%Y%H%M%S")
-    #print(datetime_obj)
+   
     return Response(res)
 
     
@@ -222,4 +217,118 @@ def admin_order_edit(request,format=None):
     }
   return Response(res)
 
+@api_view(['GET','PUT'])
+def admin_order_create(request,format=None):
+    if request.method=='GET':
+     
+      res={
+      'order_product' :"", 
+      'order_amount' :"", 
+      'order_payment_id' :"", 
+      'isPaid' :"", 
+      'order_date' :"", 
+      'user_id':"",
+      'order_status' :"" 
+      }
+      ord_obj=PaymentOrder.objects.values()
+    if request.method=='PUT':
+      data=request.data
+      if data['order_product'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+        return Response(res)
+      else:
+        order_product=data['order_product']
+        
+      if data['order_amount'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+      else:
+        order_amount=data['order_amount']
+
+      if data['order_payment_id'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+      else:
+        order_payment_id=data['order_payment_id']
+
+      if data['isPaid'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+      else:
+        isPaid=data['isPaid']
+
+      if data['order_date'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+      else:
+        order_date=data['order_date']
+
+      if data['user_id'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+      else:
+        user_id=data['user_id']
+
+      if data['order_status'] == "":
+        res={
+                    'status':False,
+                    'message':'Field Required'
+                }
+        return Response(res)
+      else:
+        order_status=data['order_status']
+      
+      new_obj=PaymentOrder(
+        order_product = order_product, 
+        order_amount = order_amount, 
+        order_payment_id = order_payment_id, 
+        isPaid = isPaid, 
+        order_date = order_date,  
+        user_id = user_id,
+        order_status = order_status
+
+      )
+      new_obj.save()
+
+      res={
+        'status':True,
+        'message':'Order created successfully'
+      }
+
+
+
+
+
+      return Response(res)
+@api_view(['POST'])
+def adminOrderDelete(request,format=None):
+   product_id=request.data['id']
+   try:
+    obj=PaymentOrder.objects.get(id=product_id)
+    obj.delete()
+    prod_obj=PaymentOrder.objects.values()
+
+    res={
+           'status':True,
+           "Message":"Product deleted successfully !"
+       }
+   except:
+       res={
+           'status':False,
+           "Message":"Something went wrong !"
+       }
+   return Response(prod_obj)
 
