@@ -53,8 +53,8 @@ urlpatterns = [
                 path('adminProductDelete',ad.adminProductDelete,name='adminProductDelete'),
                 #user
                
-
-
+              
+                path('admin_single_user_view',UserA.admin_single_user_view,name='admin_single_user_view'),
                 path('admin_user_view',UserA.admin_user_view,name='admin_user_view')
                 
 

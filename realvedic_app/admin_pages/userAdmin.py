@@ -51,7 +51,8 @@ def admin_user_view(request,format=None):
             'created':i['created_at'],
             'user':{
                 'name':i['first_name']+" "+i['last_name'],
-                'email':i['email']
+                'email':i['email'],
+                'token':i['token']
 
             },
             'destination_state':add['state'],
@@ -63,18 +64,54 @@ def admin_user_view(request,format=None):
     return Response(res)
 
 
+@api_view(['POST'])
+def admin_single_user_view(request,format=None):
+    token=request.data['token']
+    user=user_data.objects.get(token=token)
+    res={}
+    user_add=user_address.objects.get(user_id=user.id)
+    user_details={
+        'gender': user.gender,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+        'dob': user.dob,
+        'phone_code': user.phone_code,
+        'phone_no': user.phone_no,
+        'password': user.password,
+
+    }
+    address_details={
+        'user_id' : user_add.user_id,
+        'add_line_1' : user_add.add_line_1,
+        'add_line_2' : user_add.add_line_2,
+        'landmark' : user_add.landmark,
+        'city' : user_add.city,
+        'state' : user_add.state,
+        'country' : user_add.country,
+        'pincode' : user_add.pincode,
+        'phone_no' : user_add.phone_no
+
+    }
+    res['user_details']=user_details
+    res['address_details']=address_details
+    return Response(res)
+
 @api_view(['GET','PUT'])
 def admin_user_address_add(request,format=None):
     if request.method=='GET':
-        user_id = ""
-        add_line_1 = "" 
-        add_line_2 = "" 
-        landmark = "" 
-        city = "" 
-        state = "" 
-        country = "" 
-        pincode = "" 
-        phone_no = "" 
+        res={
+        'user_id' : "",
+        'add_line_1' : "", 
+        'add_line_2' : "", 
+        'landmark' : "", 
+        'city' : "", 
+        'state' : "", 
+        'country' : "", 
+        'pincode' : "", 
+        'phone_no' : "" 
+        }
+        return Response(res)
     if request.method == 'PUT':
         data-request.data
         user_id = data['user_id']
@@ -111,14 +148,17 @@ def admin_user_address_add(request,format=None):
 @api_view(['GET','PUT'])
 def admin_user_add(request,format=None):
     if request.method=='GET':
-        gender = ""
-        first_name = "" 
-        last_name = "" 
-        email = "" 
-        dob = "" 
-        phone_code = "" 
-        phone_no = "" 
-        password = ""
+        res={
+        'gender' : "",
+        'first_name' : "", 
+        'last_name' : "", 
+        'email' : "", 
+        'dob' : "", 
+        'phone_code' : "", 
+        'phone_no' : "", 
+        'password' : ""
+        }
+        return Response(res)
 
     if request.method == 'PUT':
         data=request.data
@@ -163,7 +203,7 @@ def admin_user_add(request,format=None):
 
         return Response(res)
     
-@api_view(['GET','PUT'])
+@api_view(['POST'])
 def admin_user_edit(request,format=None):
         data=request.data
         token = data['token']
@@ -226,7 +266,7 @@ def admin_user_edit(request,format=None):
         return Response(res)
 
 
-@api_view(['GET','PUT'])
+@api_view(['POST'])
 def admin_user_delete(request,format=None):
     
     token = request.data['token']
