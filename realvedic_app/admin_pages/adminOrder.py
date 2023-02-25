@@ -220,8 +220,23 @@ def admin_order_edit(request,format=None):
 @api_view(['GET','PUT'])
 def admin_order_create(request,format=None):
     if request.method=='GET':
+      prod_dict_list=[]
+      prod=Product_data.objects.values('id','title','image','category','size','price')
+      for i in prod:
+        prod_dict={
+            "id":i['id'],
+            "title":i['title'] ,
+            "image":i['image'] ,
+            "category":i['category'] ,
+            "size":i['size'].split('|') ,
+            "price":i['price'].split('|')
+
+        }
+        prod_dict_list.append(prod_dict)
+
      
       res={
+      'product':prod,
       'order_product' :"", 
       'order_amount' :"", 
       'order_payment_id' :"", 
@@ -231,6 +246,7 @@ def admin_order_create(request,format=None):
       'order_status' :"" 
       }
       ord_obj=PaymentOrder.objects.values()
+      return Response(prod_dict_list)
     if request.method=='PUT':
       data=request.data
       if data['order_product'] == "":
@@ -330,5 +346,71 @@ def adminOrderDelete(request,format=None):
            'status':False,
            "Message":"Something went wrong !"
        }
-   return Response(prod_obj)
+   return Response(res)
 
+@api_view(['POST'])
+def admincheckout(request):
+    data = request.data
+    token = data['token']
+    res = {}
+  
+    res['token'] = token
+    cartItems = user_cart.objects.filter(user_id = data['user_id']).values()
+    def getProductName(x):
+        return Product_data.objects.filter(id=x).values_list('title',flat=True)[0]
+    def getProductImage(x):
+        return Product_data.objects.filter(id = x).values_list('image',flat=True)[0].split(',')[0]
+    def getProductPrice(row):
+        prod_obj = Product_data.objects.filter(id = row['product_id']).values('size','price').last()
+        size = prod_obj['size'].split('|')        
+        price = prod_obj['price'].split('|')        
+        for i in range(len(size)):
+            if size[i] == row['size']:
+                return eval(price[i])
+    def getDiscountPrice(row):
+        prod_obj = Product_data.objects.filter(id = row['product_id']).values('discount','price').last()
+        discount = prod_obj['discount']
+        return eval(str(row['unit_price'])) - ((eval(str(row['unit_price'])) * 100) // (100 + eval(discount)))
+    def calculateNetPrice(row):
+        return eval(str(row['unit_price'])) - eval(str(row['discount_price']))
+    def calculateTaxPrice(row):
+        prod_obj = Product_data.objects.filter(id = row['product_id']).values().last()
+        tax = prod_obj['tax']
+        return eval(str(row['unit_price'])) - ((eval(str(row['unit_price'])) * 100) // (100 + eval(tax)))
+    def calculatePrice(row):
+        return eval(str(row['net_price'])) - eval(str(row['tax_price']))
+    def calculateFinalPrice(row):
+        return eval(str(row['price'])) * eval(str(row['quantity']))
+    def calculateFinalTax(row):
+        return eval(str(row['tax_price'])) * eval(str(row['quantity']))
+    def calculateFinalNetPrice(row):
+        return eval(str(row['net_price'])) * eval(str(row['quantity']))
+    if len(cartItems) > 0:
+        cartItems = pd.DataFrame(cartItems)
+
+        cartItems['id'] = cartItems['id']
+        cartItems['name'] = cartItems['product_id'].apply(getProductName)
+
+        cartItems['unit_price'] = cartItems.apply(getProductPrice,axis=1)
+        cartItems['discount_price'] = cartItems.apply(getDiscountPrice,axis=1)
+        cartItems['net_price'] = cartItems.apply(calculateNetPrice,axis=1)
+        cartItems['tax_price'] = cartItems.apply(calculateTaxPrice,axis=1)
+        cartItems['price'] = cartItems.apply(calculatePrice,axis=1)
+
+        cartItems['final_net_price'] = cartItems.apply(calculateFinalNetPrice,axis=1)
+        cartItems['final_price'] = cartItems.apply(calculateFinalPrice,axis=1)
+        cartItems['final_tax'] = cartItems.apply(calculateFinalTax,axis=1)
+
+        cartItems['quantity'] = cartItems['quantity']
+        cartItems['size'] = cartItems['size']
+        cartItems['image'] = cartItems['product_id'].apply(getProductImage)
+        cartItems = cartItems[['product_id','name','unit_price','discount_price','net_price','tax_price','price','final_net_price','final_price','final_tax','quantity','image','size']].to_dict(orient='records')
+        res['items'] = cartItems
+    else:
+        res['items'] = []
+    cartItems = pd.DataFrame(cartItems)
+    res['item_total'] = sum(list(cartItems['final_price'])) 
+    res['delivery_charges'] = 0
+    res['tax'] = sum(list(cartItems['final_tax']))
+    res['order_total'] = res['item_total'] + res['delivery_charges'] + res['tax']
+    return Response(res)

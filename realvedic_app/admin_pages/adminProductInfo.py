@@ -488,3 +488,4 @@ def adminProductDelete(request,format=None):
    return Response(prod_obj)
 
 
+

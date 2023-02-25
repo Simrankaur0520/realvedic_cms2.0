@@ -51,6 +51,7 @@ urlpatterns = [
                 path('adminAddNewProduct',ad.adminAddNewProduct,name='adminAddNewProduct'),
                 path('newImageUpload',ad.newImageUpload,name='newImageUpload'),
                 path('adminProductDelete',ad.adminProductDelete,name='adminProductDelete'),
+                #user
                
 
 

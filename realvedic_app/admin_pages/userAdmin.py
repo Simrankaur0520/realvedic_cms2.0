@@ -61,3 +61,186 @@ def admin_user_view(request,format=None):
     res['titles']=titles
     res['content']=conetnt
     return Response(res)
+
+
+@api_view(['GET','PUT'])
+def admin_user_address_add(request,format=None):
+    if request.method=='GET':
+        user_id = ""
+        add_line_1 = "" 
+        add_line_2 = "" 
+        landmark = "" 
+        city = "" 
+        state = "" 
+        country = "" 
+        pincode = "" 
+        phone_no = "" 
+    if request.method == 'PUT':
+        data-request.data
+        user_id = data['user_id']
+        add_line_1 = data['add_line_1']
+        add_line_2 = data['add_line_2']
+        landmark = data['landmark']
+        city = data['city']
+        state = data['state']
+        country = data['country']
+        pincode = data['pincode']
+        phone_no = data['phone_no']
+
+        
+        data = user_address(
+                            user_id = user_id,
+                            add_line_1 = add_line_1,
+                            add_line_2 = add_line_2,
+                            landmark = landmark,
+                            city = city,
+                            state = state,
+                            country = country,
+                            pincode = pincode,
+                            phone_no = phone_no,
+                        )
+        data.save()
+        
+        res = { 
+                'message':'User created successfully',
+                'status':True    
+        }   
+
+        return Response(res)
+    
+@api_view(['GET','PUT'])
+def admin_user_add(request,format=None):
+    if request.method=='GET':
+        gender = ""
+        first_name = "" 
+        last_name = "" 
+        email = "" 
+        dob = "" 
+        phone_code = "" 
+        phone_no = "" 
+        password = ""
+
+    if request.method == 'PUT':
+        data=request.data
+        gender = data['gender']
+        first_name = data['first_name']
+        last_name = data['last_name']
+        email = data['email']
+        dob = data['dob']
+        phone_code = data['phone_code']
+        phone_no = data['phone_no']
+        password = data['password']
+
+        enc_pass = make_password(password)
+        token = make_password(email+password)
+
+        if email in user_data.objects.values_list('email',flat=True):
+            return Response({'message':'Email already exist',
+                            'status':False    
+                            })
+        if phone_no in user_data.objects.values_list('email',flat=True):
+            return Response({'message':'Phone number already exist',
+                            'status':False 
+                            })
+        data = user_data(
+                            first_name = first_name,
+                            last_name = last_name,
+                            email = email,
+                            gender = gender,
+                            dob = dob,
+                            phone_code = phone_code,
+                            phone_no = phone_no,
+                            password = enc_pass,
+                            token = token,
+                        )
+        data.save()
+        
+        res = { 
+                'message':'User created successfully',
+                'status':True    
+        }   
+
+
+        return Response(res)
+    
+@api_view(['GET','PUT'])
+def admin_user_edit(request,format=None):
+        data=request.data
+        token = data['token']
+        
+        gender = data['gender']
+        first_name = data['first_name']
+        last_name = data['last_name']
+        email = data['email']
+        dob = data['dob']
+        phone_code = data['phone_code']
+        phone_no = data['phone_no']
+
+        user_id = data['user_id']
+        add_line_1 = data['add_line_1']
+        add_line_2 = data['add_line_2']
+        landmark = data['landmark']
+        city = data['city']
+        state = data['state']
+        country = data['country']
+        pincode = data['pincode']
+        phone_no = data['phone_no']
+        try:
+            user=user.objects.get(token=token)
+        
+       
+            data = user_data.objects.filter(id=user.id).update(
+                                first_name = first_name,
+                                last_name = last_name,
+                                email = email,
+                                gender = gender,
+                                dob = dob,
+                                phone_code = phone_code,
+                                phone_no = phone_no,
+                            
+                            )
+           
+
+
+            data = user_address.filter(user_id=user.id).update(
+                                user_id = user_id,
+                                add_line_1 = add_line_1,
+                                add_line_2 = add_line_2,
+                                landmark = landmark,
+                                city = city,
+                                state = state,
+                                country = country,
+                                pincode = pincode,
+                                phone_no = phone_no,
+                            )
+           
+            res={
+                    'status':True,
+                    'message':"Updated successfully"
+                }
+        except:
+            res={
+                'status':False,
+                'message':"something went wrong"
+            }
+        return Response(res)
+
+
+@api_view(['GET','PUT'])
+def admin_user_delete(request,format=None):
+    
+    token = request.data['token']
+    try:
+        user=user_data.objects.get(token=token)
+        user.delete()
+        res={
+            'status':True,
+            'message':"Deleted successfully"
+
+        }
+    except:
+        res={
+                'status':False,
+                'message':"something went wrong"
+            }
+    return Response(res)
