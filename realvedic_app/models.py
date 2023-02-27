@@ -128,7 +128,7 @@ class PaymentOrder(models.Model):
     order_amount = models.TextField()
     order_payment_id = models.TextField()
     isPaid = models.BooleanField(default=False)
-    order_date = models.DateTimeField(auto_now=True)
+    order_date = models.DateField(auto_now=True)
     user_id=models.TextField(null=True)
     order_status = models.TextField(blank = True) #placed > processed > dispatched > on the way > delivered
 

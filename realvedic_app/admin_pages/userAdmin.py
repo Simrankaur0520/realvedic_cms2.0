@@ -43,34 +43,53 @@ def admin_user_view(request,format=None):
     conetnt=[]
     res={}
     user=user_data.objects.values()
-
+    add=user_address.objects.values()
+    
     for i in user:
-        add=user_address.objects.filter(user_id=i['id']).values()[0]
-        user_lis={
-            'user_id': i['id'],
-            'created':i['created_at'],
-            'user':{
-                'name':i['first_name']+" "+i['last_name'],
-                'email':i['email'],
-                'token':i['token']
+        add=user_address.objects.filter(user_id=str(i['id'])).values()[0]
+    
+        
 
-            },
-            'destination_state':add['state'],
-            'pincode':add['pincode']
-        }
+
+        user_lis={
+                'user_id': i['id'],
+                'created':i['created_at'],
+                'user':{
+                    'name':i['first_name']+" "+i['last_name'],
+                    'email':i['email'],
+                    'token':i['token'],
+
+                },
+                'destination_state':add['state'],
+                'pincode':add['pincode']
+            }
         conetnt.append(user_lis)
     res['titles']=titles
     res['content']=conetnt
+
     return Response(res)
 
 
 @api_view(['POST'])
 def admin_single_user_view(request,format=None):
-    token=request.data['token']
-    user=user_data.objects.get(token=token)
+    user_token=request.data['token']
+    user=user_data.objects.get(token=user_token)
     res={}
+    
+   
+    if  str(user.id) in PaymentOrder.objects.values_list('user_id',flat=True):
+    
+        order_obj=PaymentOrder.objects.filter(user_id=user.id).values()
+        
+          
+    else: 
+        order_obj="none"
+   
+        
+    
     user_add=user_address.objects.get(user_id=user.id)
     user_details={
+        'id':user.id,
         'gender': user.gender,
         'first_name': user.first_name,
         'last_name': user.last_name,
@@ -95,55 +114,12 @@ def admin_single_user_view(request,format=None):
     }
     res['user_details']=user_details
     res['address_details']=address_details
+    res['order_info']=order_obj
+    
+    ord=PaymentOrder.objects.values()
     return Response(res)
 
-@api_view(['GET','PUT'])
-def admin_user_address_add(request,format=None):
-    if request.method=='GET':
-        res={
-        'user_id' : "",
-        'add_line_1' : "", 
-        'add_line_2' : "", 
-        'landmark' : "", 
-        'city' : "", 
-        'state' : "", 
-        'country' : "", 
-        'pincode' : "", 
-        'phone_no' : "" 
-        }
-        return Response(res)
-    if request.method == 'PUT':
-        data-request.data
-        user_id = data['user_id']
-        add_line_1 = data['add_line_1']
-        add_line_2 = data['add_line_2']
-        landmark = data['landmark']
-        city = data['city']
-        state = data['state']
-        country = data['country']
-        pincode = data['pincode']
-        phone_no = data['phone_no']
 
-        
-        data = user_address(
-                            user_id = user_id,
-                            add_line_1 = add_line_1,
-                            add_line_2 = add_line_2,
-                            landmark = landmark,
-                            city = city,
-                            state = state,
-                            country = country,
-                            pincode = pincode,
-                            phone_no = phone_no,
-                        )
-        data.save()
-        
-        res = { 
-                'message':'User created successfully',
-                'status':True    
-        }   
-
-        return Response(res)
     
 @api_view(['GET','PUT'])
 def admin_user_add(request,format=None):
@@ -156,7 +132,15 @@ def admin_user_add(request,format=None):
         'dob' : "", 
         'phone_code' : "", 
         'phone_no' : "", 
-        'password' : ""
+        'password' : "",
+        'add_line_1' : "", 
+        'add_line_2' : "", 
+        'landmark' : "", 
+        'city' : "", 
+        'state' : "", 
+        'country' : "", 
+        'pincode' : ""
+       
         }
         return Response(res)
 
@@ -170,7 +154,15 @@ def admin_user_add(request,format=None):
         phone_code = data['phone_code']
         phone_no = data['phone_no']
         password = data['password']
-
+        #address
+        add_line_1 = data['add_line_1']
+        add_line_2 = data['add_line_2']
+        landmark = data['landmark']
+        city = data['city']
+        state = data['state']
+        country = data['country']
+        pincode = data['pincode']
+        
         enc_pass = make_password(password)
         token = make_password(email+password)
 
@@ -194,6 +186,20 @@ def admin_user_add(request,format=None):
                             token = token,
                         )
         data.save()
+        user=user_data.objects.get(phone_no=phone_no)
+
+        data = user_address(
+                            user_id = user.id,
+                            add_line_1 = add_line_1,
+                            add_line_2 = add_line_2,
+                            landmark = landmark,
+                            city = city,
+                            state = state,
+                            country = country,
+                            pincode = pincode,
+                            phone_no = phone_no,
+                        )
+        data.save()
         
         res = { 
                 'message':'User created successfully',
@@ -201,10 +207,13 @@ def admin_user_add(request,format=None):
         }   
 
 
+
+
         return Response(res)
     
 @api_view(['POST'])
 def admin_user_edit(request,format=None):
+        admin_token=data['admin_token']
         data=request.data
         token = data['token']
         
@@ -215,8 +224,6 @@ def admin_user_edit(request,format=None):
         dob = data['dob']
         phone_code = data['phone_code']
         phone_no = data['phone_no']
-
-        user_id = data['user_id']
         add_line_1 = data['add_line_1']
         add_line_2 = data['add_line_2']
         landmark = data['landmark']
@@ -226,7 +233,7 @@ def admin_user_edit(request,format=None):
         pincode = data['pincode']
         phone_no = data['phone_no']
         try:
-            user=user.objects.get(token=token)
+            user=user_data.objects.get(token=token)
         
        
             data = user_data.objects.filter(id=user.id).update(
@@ -242,8 +249,8 @@ def admin_user_edit(request,format=None):
            
 
 
-            data = user_address.filter(user_id=user.id).update(
-                                user_id = user_id,
+            data = user_address.objects.filter(user_id=user.id).update(
+
                                 add_line_1 = add_line_1,
                                 add_line_2 = add_line_2,
                                 landmark = landmark,
@@ -268,10 +275,10 @@ def admin_user_edit(request,format=None):
 
 @api_view(['POST'])
 def admin_user_delete(request,format=None):
-    
+ 
     token = request.data['token']
     try:
-        user=user_data.objects.get(token=token)
+        user=user_data.objects.get(id=token)
         user.delete()
         res={
             'status':True,
@@ -283,4 +290,5 @@ def admin_user_delete(request,format=None):
                 'status':False,
                 'message':"something went wrong"
             }
+        userr=user_data.objects.values()
     return Response(res)

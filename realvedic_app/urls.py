@@ -43,6 +43,7 @@ urlpatterns = [
                 path('admin_order_edit_view',adO.admin_order_edit_view,name='admin_order_edit_view'),
                 path('admin_order_create',adO.admin_order_create,name='admin_order_create'),
                 path('adminOrderDelete',adO.adminOrderDelete,name='adminOrderDelete'),
+              
                 #product
                 path('adminProductView',ad.adminProductView,name='adminProductView'),
                 path('adminProductEditView',ad.adminProductEditView,name='adminProductEditView'),
@@ -52,10 +53,12 @@ urlpatterns = [
                 path('newImageUpload',ad.newImageUpload,name='newImageUpload'),
                 path('adminProductDelete',ad.adminProductDelete,name='adminProductDelete'),
                 #user
-               
-              
+                path('admin_user_view',UserA.admin_user_view,name='admin_user_view'),
                 path('admin_single_user_view',UserA.admin_single_user_view,name='admin_single_user_view'),
-                path('admin_user_view',UserA.admin_user_view,name='admin_user_view')
+                path('admin_user_add',UserA.admin_user_add,name='admin_user_add'),
+                path('admin_user_edit',UserA.admin_user_edit,name='admin_user_edit'),
+                path('admin_user_delete',UserA.admin_user_delete,name='admin_user_delete'),
                 
+
 
               ]+static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)

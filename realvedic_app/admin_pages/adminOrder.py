@@ -77,7 +77,7 @@ def admin_order_view(request,format=None):
     ]
   #-------------------static data ends ----------------
     order_obj=PaymentOrder.objects.values()
-   
+    
     for i in order_obj:
         user_dataa=user_data.objects.filter(id=i['user_id']).values()[0]
         prod_name=eval(i['order_product'])['items']
@@ -221,7 +221,7 @@ def admin_order_edit(request,format=None):
 def admin_order_create(request,format=None):
     if request.method=='GET':
       prod_dict_list=[]
-      prod=Product_data.objects.values('id','title','image','category','size','price')
+      prod=Product_data.objects.values()
       for i in prod:
         prod_dict={
             "id":i['id'],
@@ -241,13 +241,13 @@ def admin_order_create(request,format=None):
       'order_amount' :"", 
       'order_payment_id' :"", 
       'isPaid' :"", 
-      'order_date' :"", 
       'user_id':"",
       'order_status' :"" 
       }
-      ord_obj=PaymentOrder.objects.values()
+     
       return Response(prod_dict_list)
     if request.method=='PUT':
+      ord_obj=PaymentOrder.objects.values()
       data=request.data
       if data['order_product'] == "":
         res={
@@ -282,14 +282,6 @@ def admin_order_create(request,format=None):
       else:
         isPaid=data['isPaid']
 
-      if data['order_date'] == "":
-        res={
-                    'status':False,
-                    'message':'Field Required'
-                }
-      else:
-        order_date=data['order_date']
-
       if data['user_id'] == "":
         res={
                     'status':False,
@@ -312,7 +304,7 @@ def admin_order_create(request,format=None):
         order_amount = order_amount, 
         order_payment_id = order_payment_id, 
         isPaid = isPaid, 
-        order_date = order_date,  
+   
         user_id = user_id,
         order_status = order_status
 
@@ -325,37 +317,63 @@ def admin_order_create(request,format=None):
       }
 
 
-
-
-
-      return Response(res)
+      return Response(ord_obj)
+    
 @api_view(['POST'])
 def adminOrderDelete(request,format=None):
-   product_id=request.data['id']
+   admin_token=request.data['token']
+   order_id=request.data['id']
    try:
-    obj=PaymentOrder.objects.get(id=product_id)
+    obj=PaymentOrder.objects.get(id=order_id)
     obj.delete()
     prod_obj=PaymentOrder.objects.values()
 
     res={
            'status':True,
-           "Message":"Product deleted successfully !"
+           "Message":"Product deleted successfully !",
+           'prod':prod_obj
        }
    except:
        res={
            'status':False,
-           "Message":"Something went wrong !"
+           "Message":"Something went wrong !",
+           'prod':prod_obj
        }
    return Response(res)
 
-@api_view(['POST'])
+'''@api_view(['POST'])
 def admincheckout(request):
-    data = request.data
-    token = data['token']
+    
+    #token = data['token']
     res = {}
-  
-    res['token'] = token
-    cartItems = user_cart.objects.filter(user_id = data['user_id']).values()
+    data=request.data
+    product_id=data['id']
+    title=data['title']  
+    size=data['size']
+    unit_price=data['price']  
+    quantity=data['quantity']
+    tax=data['tax ']
+    discount=['discount']
+    prod_obj=Product_data.objects.values()
+    net_price=int(unit_price)-int(discount)
+    original_price=net_price-tax
+    prod_details={
+      'product_id':product_id,
+      'title':title,
+      'size':size,
+      'unit_price':unit_price,
+      'quantity':quantity,
+      'tax':tax,
+      'discount':discount,
+      'net_price':net_price,
+      'original_price':original_price
+
+
+
+
+    }'''
+    
+'''cartItems = user_cart.objects.filter(user_id = data['user_id']).values()
     def getProductName(x):
         return Product_data.objects.filter(id=x).values_list('title',flat=True)[0]
     def getProductImage(x):
@@ -412,5 +430,5 @@ def admincheckout(request):
     res['item_total'] = sum(list(cartItems['final_price'])) 
     res['delivery_charges'] = 0
     res['tax'] = sum(list(cartItems['final_tax']))
-    res['order_total'] = res['item_total'] + res['delivery_charges'] + res['tax']
-    return Response(res)
+    res['order_total'] = res['item_total'] + res['delivery_charges'] + res['tax']'''
+    
